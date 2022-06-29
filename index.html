@@ -1,28 +1,59 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
+
+<head>
+    <meta charset="UTF-8" />
     <title>Vue.js</title>
+    <style>
+        .box {
+            width: 100px;
+            height: 100px;
+            background-color: lightblue;
+        }
+
+        .rotate {
+            transform: rotate(45deg);
+        }
+    </style>
 </head>
 
 <body>
     <div id="app">
-        {{m}}<br>
+        {{m}}<br />
         <todo-item></todo-item>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-    <script>
-        // 定义名为 todo-item 的新组件
-        Vue.component('todo-item', {
-            template: '<p>This is todo list component</p>'
-        })
-        var app = new Vue({
-            el: "#app",
-            data: {
-                m: "hello vue.js",
-            },
-        });
-    </script>
+        <!-- <button type="button" @click="handleOnClick">Click Me!</button> -->
+        <div id="div1" @click.capture="handleOnClickOne">1
+            <div id="div2" @click="handleOnClickTwo">2
+            </div>
+        </div>
+        <input type="text" @keyup.enter="sumbitValid(this)"/>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+        <script>
+            // 定义名为 todo-item 的新组件
+            Vue.component("todo-item", {
+                template: "<p>This is todo list component</p>",
+            });
+            var app = new Vue({
+                el: "#app",
+                data: {
+                    m: "hello vue.js",
+                    isRotate: false,
+                },
+                methods: {
+                    handleOnClickOne: function () {
+                        alert("Hello one!");
+                    },
+                    handleOnClickTwo: function () {
+                        alert("Hello two!");
+                    },
+                    sumbitValid: function(a) {
+                        alert(a)
+                    }
+                },
+            });
+        </script>
 </body>
+
 </html>
