@@ -14,6 +14,10 @@
         .rotate {
             transform: rotate(45deg);
         }
+
+        .myComponent{
+            border:2px solid black;
+        }
     </style>
 </head>
 
@@ -27,19 +31,65 @@
             </div>
         </div>
         <input type="text" @keyup.enter="sumbitValid(this)"/>
+        <button @click="handleOnClick('Shawn')" type="button">{{text}}</button>
+
+        <div id="app">
+            目前擁有台幣：{{ money }}元。
+            轉換為日幣後：{{ JPY }}日圓。
+        </div>
+
+        <p>
+        今晚晚餐吃這個：
+        <input v-model="question">
+        </p>
+        <p>{{ answer }}</p>
+        
+        <button @click="content='my-component1'">1</button>
+        <button @click="content='my-component2'">2</button>
+
+        <keep-alive>
+        <component :is="content"></component>
+        </keep-alive>
 
 
+        <todo-list></todo-list>
+
+        
         <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
         <script>
             // 定义名为 todo-item 的新组件
             Vue.component("todo-item", {
                 template: "<p>This is todo list component</p>",
             });
+
+            Vue.component('my-component1', {
+                template: `
+                <div>
+                <h3>--component1--</h3>
+                <select>
+                    <option>0</option>
+                    <option>1</option>
+                    <option>2</option>
+                </select>
+                </div>`,
+            });
+
+            Vue.component('my-component2', {
+                template: `
+                <div>
+                <h3>--component2--</h3>
+                </div>
+                `
+            });
+
             var app = new Vue({
                 el: "#app",
                 data: {
                     m: "hello vue.js",
                     isRotate: false,
+                    money:1000,
+                    text:'Hello Vue!',
+                    content: 'my-component1'
                 },
                 methods: {
                     handleOnClickOne: function () {
@@ -50,9 +100,38 @@
                     },
                     sumbitValid: function(a) {
                         alert(a)
+                    },
+                    handleOnClick : function(name){
+                        return this.text = `Hello ${name}!`
+                    },
+                    getAnswer: function(){
+                    var self = this
+                    .fetch('https://yesno.wtf/api')
+                    .then(res=>res.json())
+                    .then(res=>{
+                        self.answer = res.answer
+                        })
                     }
                 },
+                computed:{
+                    JPY : function(){
+                    return this.money / 0.3
+                    }
+                },
+                watch:{
+                    question : function(){
+                    this.getAnswer()
+                    }
+                },
+                // scope component的用法
+                // components:{
+                //     'my-component':{
+                //         template:'<div class="myComponent">Hello Vue</div>'
+                //     }
+                // }
             });
+
+            
         </script>
 </body>
 
