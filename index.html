@@ -53,33 +53,84 @@
 
 
         <todo-list></todo-list>
+        <my-component MessageOne='hello' MessageTwo='World'></my-component>
 
-        
+
+        <!-- <test v-for="text in posts" :name="text.name" :email="text.email"></test> -->
+        <!-- 使用v-bind取代一個一個的屬性 -->
+        <test v-for="text in posts" v-bind="text"></test>
+
+        <my-button @button-click="parentClicked">123</my-button>
+
+        <counter start="0"></counter>
         <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
         <script>
             // 定义名为 todo-item 的新组件
-            Vue.component("todo-item", {
-                template: "<p>This is todo list component</p>",
+            // Vue.component("todo-item", {
+            //     template: "<p>This is todo list component</p>",
+            // });
+            Vue.component('my-button',{
+                template: '<button @click="myClick">button</button>',
+                methods:{
+                myClick(){
+                this.$emit("button-click", 777)
+                }
+            }
             });
 
-            Vue.component('my-component1', {
-                template: `
-                <div>
-                <h3>--component1--</h3>
-                <select>
-                    <option>0</option>
-                    <option>1</option>
-                    <option>2</option>
-                </select>
-                </div>`,
+            Vue.component('my-component',{
+                props:['MessageOne','MessageTwo'],
+                template: ` <h1>{{MessageOne}}{{MessageTwo}}</h1>`
             });
 
-            Vue.component('my-component2', {
+            Vue.component('todo-input', {
+                data() {
+                return {
+                    text: '',
+                };
+                },
+                methods: {
+                submit() {
+                    this.$emit("input", this.text);
+                    this.text = "";
+                }
+
+                },
                 template: `
-                <div>
-                <h3>--component2--</h3>
-                </div>
+                <form @submit.prevent="submit">
+                <input type="text" v-model="text"/>
+                <button type="submit">submit</button>
+                </form>
                 `
+            });
+            
+            //---Component todo-item
+            
+            Vue.component('todo-item', {
+                props: ['label'],
+                template: '<li>{{label}}</li>'
+            });
+            
+            //---Component todo-list
+            
+            Vue.component('todo-list', {
+                data() {
+                return {
+                    todos: ["a", "b", "c"],
+                };
+                },
+                methods: {
+                addTodo(text) {
+                    this.todos.push(text);
+                }
+                },
+                template: `
+                <div>
+                <todo-input @input="addTodo"></todo-input>    
+                <ul>
+                <todo-item v-for="todo in todos" :label="todo"></todo-item>
+                </ul>
+                </div>`
             });
 
             var app = new Vue({
@@ -88,8 +139,14 @@
                     m: "hello vue.js",
                     isRotate: false,
                     money:1000,
-                    text:'Hello Vue!',
-                    content: 'my-component1'
+                    content: 'my-component1',
+                    text:"hello",
+                    strings:["str1", "str2"],
+                    posts:[
+                        {name:"Henry", email:"henry@hotmail.com"},
+                        {name:"Coco", email:"coco@gmail.com"},
+                        {name:"Gigi", email:"Gigi@gmail.com"}
+                        ]
                 },
                 methods: {
                     handleOnClickOne: function () {
@@ -111,6 +168,9 @@
                     .then(res=>{
                         self.answer = res.answer
                         })
+                    },
+                    parentClicked(num){
+                        console.log("button clicked "+num);
                     }
                 },
                 computed:{
@@ -129,6 +189,12 @@
                 //         template:'<div class="myComponent">Hello Vue</div>'
                 //     }
                 // }
+                components:{
+                    test:{
+                        props:["name","email"],
+                        template: "<div>{{name}}:{{email}}</div>"
+                    }
+                }
             });
 
             
