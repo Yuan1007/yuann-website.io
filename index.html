@@ -3,202 +3,183 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Vue.js</title>
+
+    <meta charset="utf-8" />
+    <title>Gamedev Canvas Workshop</title>
     <style>
-        .box {
-            width: 100px;
-            height: 100px;
-            background-color: lightblue;
+        * {
+            padding: 0;
+            margin: 0;
         }
 
-        .rotate {
-            transform: rotate(45deg);
-        }
-
-        .myComponent{
-            border:2px solid black;
+        canvas {
+            background: #eee;
+            display: block;
+            margin: 0 auto;
         }
     </style>
 </head>
 
 <body>
-    <div id="app">
-        {{m}}<br />
-        <todo-item></todo-item>
-        <!-- <button type="button" @click="handleOnClick">Click Me!</button> -->
-        <div id="div1" @click.capture="handleOnClickOne">1
-            <div id="div2" @click="handleOnClickTwo">2
-            </div>
-        </div>
-        <input type="text" @keyup.enter="sumbitValid(this)"/>
-        <button @click="handleOnClick('Shawn')" type="button">{{text}}</button>
+    <canvas id="myCanvas" width="480" height="320"></canvas>
 
-        <div id="app">
-            目前擁有台幣：{{ money }}元。
-            轉換為日幣後：{{ JPY }}日圓。
-        </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 
-        <p>
-        今晚晚餐吃這個：
-        <input v-model="question">
-        </p>
-        <p>{{ answer }}</p>
-        
-        <button @click="content='my-component1'">1</button>
-        <button @click="content='my-component2'">2</button>
-
-        <keep-alive>
-        <component :is="content"></component>
-        </keep-alive>
-
-
-        <todo-list></todo-list>
-        <my-component MessageOne='hello' MessageTwo='World'></my-component>
-
-
-        <!-- <test v-for="text in posts" :name="text.name" :email="text.email"></test> -->
-        <!-- 使用v-bind取代一個一個的屬性 -->
-        <test v-for="text in posts" v-bind="text"></test>
-
-        <my-button @button-click="parentClicked">123</my-button>
-
-        <counter start="0"></counter>
-        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
-        <script>
-            // 定义名为 todo-item 的新组件
-            // Vue.component("todo-item", {
-            //     template: "<p>This is todo list component</p>",
-            // });
-            Vue.component('my-button',{
-                template: '<button @click="myClick">button</button>',
-                methods:{
-                myClick(){
-                this.$emit("button-click", 777)
-                }
-            }
-            });
-
-            Vue.component('my-component',{
-                props:['MessageOne','MessageTwo'],
-                template: ` <h1>{{MessageOne}}{{MessageTwo}}</h1>`
-            });
-
-            Vue.component('todo-input', {
-                data() {
-                return {
-                    text: '',
-                };
-                },
-                methods: {
-                submit() {
-                    this.$emit("input", this.text);
-                    this.text = "";
-                }
-
-                },
-                template: `
-                <form @submit.prevent="submit">
-                <input type="text" v-model="text"/>
-                <button type="submit">submit</button>
-                </form>
-                `
-            });
-            
-            //---Component todo-item
-            
-            Vue.component('todo-item', {
-                props: ['label'],
-                template: '<li>{{label}}</li>'
-            });
-            
-            //---Component todo-list
-            
-            Vue.component('todo-list', {
-                data() {
-                return {
-                    todos: ["a", "b", "c"],
-                };
-                },
-                methods: {
-                addTodo(text) {
-                    this.todos.push(text);
-                }
-                },
-                template: `
-                <div>
-                <todo-input @input="addTodo"></todo-input>    
-                <ul>
-                <todo-item v-for="todo in todos" :label="todo"></todo-item>
-                </ul>
-                </div>`
-            });
-
-            var app = new Vue({
-                el: "#app",
-                data: {
-                    m: "hello vue.js",
-                    isRotate: false,
-                    money:1000,
-                    content: 'my-component1',
-                    text:"hello",
-                    strings:["str1", "str2"],
-                    posts:[
-                        {name:"Henry", email:"henry@hotmail.com"},
-                        {name:"Coco", email:"coco@gmail.com"},
-                        {name:"Gigi", email:"Gigi@gmail.com"}
-                        ]
-                },
-                methods: {
-                    handleOnClickOne: function () {
-                        alert("Hello one!");
-                    },
-                    handleOnClickTwo: function () {
-                        alert("Hello two!");
-                    },
-                    sumbitValid: function(a) {
-                        alert(a)
-                    },
-                    handleOnClick : function(name){
-                        return this.text = `Hello ${name}!`
-                    },
-                    getAnswer: function(){
-                    var self = this
-                    .fetch('https://yesno.wtf/api')
-                    .then(res=>res.json())
-                    .then(res=>{
-                        self.answer = res.answer
-                        })
-                    },
-                    parentClicked(num){
-                        console.log("button clicked "+num);
-                    }
-                },
-                computed:{
-                    JPY : function(){
-                    return this.money / 0.3
-                    }
-                },
-                watch:{
-                    question : function(){
-                    this.getAnswer()
-                    }
-                },
-                // scope component的用法
-                // components:{
-                //     'my-component':{
-                //         template:'<div class="myComponent">Hello Vue</div>'
-                //     }
-                // }
-                components:{
-                    test:{
-                        props:["name","email"],
-                        template: "<div>{{name}}:{{email}}</div>"
-                    }
-                }
-            });
-
-            
-        </script>
+    <div id="app"></div>
 </body>
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    var ballRadius = 10;
+    var x = canvas.width / 2;
+    var y = canvas.height - 30;
+    var dx = 2;
+    var dy = -2;
+
+    //做一支球拍
+    var paddleHeight = 10;
+    var paddleWidth = 75;
+    var paddleX = (canvas.width - paddleWidth) / 2;
+    var rightPressed = false;
+    var leftPressed = false;
+    document.addEventListener("keydown", keyDownHandler, false);
+    document.addEventListener("keyup", keyUpHandler, false);
+
+    //Setting up the brick variables
+    var brickRowCount = 3;
+    var brickColumnCount = 5;
+    var brickWidth = 75;
+    var brickHeight = 20;
+    var brickPadding = 10;
+    var brickOffsetTop = 30;
+    var brickOffsetLeft = 30;
+    var score = 0;
+
+    var bricks = [];
+    for (var c = 0; c < brickColumnCount; c++) {
+        bricks[c] = [];
+        for (var r = 0; r < brickRowCount; r++) {
+            bricks[c][r] = { x: 0, y: 0, status: 1 };
+        }
+    }
+
+    function drawBricks() {
+        for (var c = 0; c < brickColumnCount; c++) {
+            for (var r = 0; r < brickRowCount; r++) {
+                var brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+                var brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                bricks[c][r].x = brickX;
+                bricks[c][r].y = brickY;
+                ctx.beginPath();
+                ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+    }
+
+    function keyDownHandler(e) {
+        if (e.key == "Right" || e.key == "ArrowRight") {
+            rightPressed = true;
+        } else if (e.key == "Left" || e.key == "ArrowLeft") {
+            leftPressed = true;
+        }
+    }
+
+    function collisionDetection() {
+        for(var c=0; c<brickColumnCount; c++) {
+          for(var r=0; r<brickRowCount; r++) {
+            var b = bricks[c][r];
+            if(b.status == 1) {
+              if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                dy = -dy;
+                b.status = 0;
+                score++;
+                if(score == brickRowCount*brickColumnCount) {
+                  alert("YOU WIN, CONGRATS!");
+                  document.location.reload();
+                  clearInterval(interval); // Needed for Chrome to end game
+                }
+              }
+            }
+          }
+        }
+      }
+
+    function keyUpHandler(e) {
+        if (e.key == "Right" || e.key == "ArrowRight") {
+            rightPressed = false;
+        } else if (e.key == "Left" || e.key == "ArrowLeft") {
+            leftPressed = false;
+        }
+    }
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+
+        //ctx.arc(x, y, 10, 0, Math.PI*2);//X軸,X軸,半徑大小,圓弧開始和結束的角度,繪製的方向(false代表順時針方向
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawPaddle() {
+        ctx.beginPath();
+        ctx.rect(
+            paddleX,
+            canvas.height - paddleHeight,
+            paddleWidth,
+            paddleHeight
+        );
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function drawScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#0095DD";
+        ctx.fillText("Score: " + score, 8, 20);
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBall();
+        drawPaddle();
+        drawBricks();
+        collisionDetection();
+
+        //計算的牆壁和球的中心的碰撞點，而我們應該做它的圓周。球應該反彈後，如果接觸牆，而不是當它已經在牆上的一半
+        if (x + dx + ballRadius > canvas.width || x + dx - ballRadius < 0) {
+            dx = -dx;
+        }
+
+        //Y軸向下為負 向上為正
+        if (y + dy + ballRadius > canvas.height || y + dy - ballRadius < 0) {
+            dy = -dy;
+        } else if (y + dy > canvas.height - ballRadius) {
+            if (x > paddleX && x < paddleX + paddleWidth) {
+                dy = -dy;
+            } else {
+                alert("GAME OVER");
+                document.location.reload();
+                clearInterval(interval); // Needed for Chrome to end game
+            }
+        }
+
+        if (rightPressed && paddleX < canvas.width - paddleWidth) {
+            paddleX += 7;
+        } else if (leftPressed && paddleX > 0) {
+            paddleX -= 7;
+        }
+        x += dx;
+        y += dy;
+    }
+
+    setInterval(draw, 10);
+</script>
 
 </html>
